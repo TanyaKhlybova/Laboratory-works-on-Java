@@ -1,4 +1,4 @@
-package fractals;
+package LR5;
 
 import javax.swing.*;
 import java.awt.image.*;
@@ -6,6 +6,10 @@ import java.awt.*;
 
 class JImageDisplay extends JComponent {
     private BufferedImage image;
+
+    public BufferedImage getImage() {
+        return image;
+        }
 
     /** Конструктор принимает целочисленные
 значения ширины и высоты, и инициализирует объект BufferedImage новым
@@ -44,3 +48,4 @@ paintComponent */
         image.setRGB(x, y, rgbColor);
     }
 }
+

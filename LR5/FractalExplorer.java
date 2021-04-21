@@ -1,9 +1,17 @@
-package fractals;
+package LR5;
 
 import java.awt.*;
 import javax.swing.*;
+
 import java.awt.geom.Rectangle2D;
+import java.io.FileFilter;
 import java.awt.event.*;
+
+import javax.swing.JFileChooser.*;
+import javax.swing.filechooser.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageIO.*;
+import java.awt.image.*;
 
 public class FractalExplorer {
 
@@ -53,13 +61,33 @@ public class FractalExplorer {
         JFrame frame = new JFrame("Fractal Explorer");
         frame.add(display, BorderLayout.CENTER);
         JButton resetButton = new JButton("Reset");
-        ResetButton reset = new ResetButton();
+        buttonClick reset = new buttonClick();
         resetButton.addActionListener(reset);
-        frame.add(resetButton, BorderLayout.SOUTH);
-        clickZoom mouseClick = new clickZoom();
+        mouseClick mouseClick = new mouseClick();
         frame.addMouseListener(mouseClick);
         //операция закрытия окна по умолчанию
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JComboBox comboBox = new JComboBox();
+        comboBox.addItem(new Mandelbrot());
+        comboBox.addItem(new Tricorn());
+        comboBox.addItem(new BurningShip());
+        buttonClick chooseFractal = new buttonClick();
+        comboBox.addActionListener(chooseFractal);
+        JPanel topPanel = new JPanel();
+        JLabel label = new JLabel("Type of fractal");
+        topPanel.add(label);
+        topPanel.add(comboBox);
+        frame.add(topPanel, BorderLayout.NORTH);
+        
+        JButton saveButton = new JButton("Save");
+        buttonClick save = new buttonClick();
+        saveButton.addActionListener(save);
+        JPanel lowPanel = new JPanel();
+        lowPanel.add(saveButton);
+        lowPanel.add(resetButton);
+        frame.add(lowPanel, BorderLayout.SOUTH);
+
 
 /**Данные операции правильно разметят содержимое окна, сделают его
 видимым (окна первоначально не отображаются при их создании для того,
@@ -104,18 +132,51 @@ public class FractalExplorer {
         // обновляем JimageDisplay в соответствии с текущим изображением. 
         display.repaint();
     }
+
+    private class buttonClick implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            if (e.getSource() instanceof JComboBox) {
+                JComboBox mySource = (JComboBox) e.getSource();
+                fractals = (FractalGenerator) mySource.getSelectedItem();
+                fractals.getInitialRange(range);
+                drawFractal();
+            }
+            /**обработка событий 
+     * java.awt.event.ActionListener от кнопки сброса. Обработчик должен сбросить 
+     * диапазон к начальному, определенному генератором, а затем перерисовать 
+     * фрактал. */
+            else if (e.getActionCommand().equals("Reset")){
+                fractals.getInitialRange(range);
+                drawFractal();
+            }
+            else if (e.getActionCommand().equals("Save")){
+                JFileChooser chooser = new JFileChooser();
+                javax.swing.filechooser.FileFilter filter = new javax.swing.filechooser.FileNameExtensionFilter("PNG Images","png");
+                chooser.setFileFilter(filter);
+                chooser.setAcceptAllFileFilterUsed(false);
+                if (chooser.showSaveDialog(display) == JFileChooser.APPROVE_OPTION){
+                    java.io.File file = chooser.getSelectedFile();
+                    try {
+                        BufferedImage displayImage = display.getImage();
+                        ImageIO.write(displayImage, "png", file);
+                    }
+                    catch (Exception exception) {
+                        JOptionPane.showMessageDialog(
+                        display, exception.getMessage(),
+                        "Cannot Save Image", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        }
+    }
+
     /**внутренний класс для обработки событий 
      * java.awt.event.ActionListener от кнопки сброса. Обработчик должен сбросить 
      * диапазон к начальному, определенному генератором, а затем перерисовать 
      * фрактал. */
-    private class ResetButton implements ActionListener{
-        public void actionPerformed(ActionEvent e){
-            fractals.getInitialRange(range);
-            drawFractal();
-        }
-    }
+    
 // внутренний класс для обработки событий java.awt.event.MouseListener с дисплея. 
-    private class clickZoom extends MouseAdapter{
+    private class mouseClick extends MouseAdapter{
         @Override
         public void mouseClicked(MouseEvent e){
             /**
@@ -153,3 +214,4 @@ public class FractalExplorer {
         displayExplorer.drawFractal();
     }
 }
+

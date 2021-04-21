@@ -1,4 +1,5 @@
-package fractals;
+package LR5;
+
 import java.awt.geom.Rectangle2D;
 
 public class Mandelbrot extends FractalGenerator{
@@ -54,4 +55,8 @@ public class Mandelbrot extends FractalGenerator{
         
         return iterations;
     }
+    public String toString(){
+        return "Mandelbrot";
+    }
 }
+
