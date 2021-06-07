@@ -1,4 +1,4 @@
-package LR5;
+package LR66;
 
 import javax.swing.*;
 import java.awt.image.*;

@@ -1,8 +1,8 @@
-package LR5;
+package LR66;
 
 import java.awt.geom.Rectangle2D;
 
-public class Mandelbrot extends FractalGenerator{
+public class BurningShip extends FractalGenerator{
     public static final int MAX_ITERATIONS = 2000;
 
     /**методу в качестве
@@ -12,9 +12,9 @@ public class Mandelbrot extends FractalGenerator{
     public void getInitialRange(Rectangle2D.Double range){
 
         range.x = -2;
-        range.y = -1.5;
-        range.width = 3;
-        range.height = 3;
+        range.y = -2.5;
+        range.width = 4;
+        range.height = 4;
 
     }
 
@@ -38,7 +38,7 @@ public class Mandelbrot extends FractalGenerator{
                realNumber * realNumber + imaginaryNumber * imaginaryNumber < 4)
         {
             double newReal = realNumber * realNumber - imaginaryNumber * imaginaryNumber + x;
-            double newImaginary = 2 * realNumber * imaginaryNumber + y;
+            double newImaginary = Math.abs(2 * realNumber * imaginaryNumber) + y;
             realNumber = newReal;
             imaginaryNumber = newImaginary;
             iterations += 1;
@@ -56,7 +56,8 @@ public class Mandelbrot extends FractalGenerator{
         return iterations;
     }
     public String toString(){
-        return "Mandelbrot";
+        return "BurningShip";
     }
 }
+
 

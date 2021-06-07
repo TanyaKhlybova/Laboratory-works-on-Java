@@ -1,4 +1,4 @@
-package LR5;
+package LR66;
 
 import java.awt.*;
 import javax.swing.*;
@@ -17,6 +17,8 @@ public class FractalExplorer {
 
      /** Размер экрана в пикселях **/
      private int displaySize;
+
+     private int rowsRemaining;
     
      /**
       * Ссылка JImageDisplay для обновления отображения в разных
@@ -35,6 +37,10 @@ public class FractalExplorer {
       *  плоскости, которая выводится на экран.
       */
      private Rectangle2D.Double range;
+
+    private JComboBox comboBox = new JComboBox();
+    private JButton saveButton = new JButton("Save");
+    private JButton resetButton = new JButton("Reset");
 
      /**
       * Конструктор принимает значение
@@ -60,7 +66,7 @@ public class FractalExplorer {
     public void createAndShowGUI(){
         JFrame frame = new JFrame("Fractal Explorer");
         frame.add(display, BorderLayout.CENTER);
-        JButton resetButton = new JButton("Reset");
+    
         buttonClick reset = new buttonClick();
         resetButton.addActionListener(reset);
         mouseClick mouseClick = new mouseClick();
@@ -68,7 +74,7 @@ public class FractalExplorer {
         //операция закрытия окна по умолчанию
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JComboBox comboBox = new JComboBox();
+    
         comboBox.addItem(new Mandelbrot());
         comboBox.addItem(new Tricorn());
         comboBox.addItem(new BurningShip());
@@ -80,7 +86,7 @@ public class FractalExplorer {
         topPanel.add(comboBox);
         frame.add(topPanel, BorderLayout.NORTH);
         
-        JButton saveButton = new JButton("Save");
+        
         buttonClick save = new buttonClick();
         saveButton.addActionListener(save);
         JPanel lowPanel = new JPanel();
@@ -97,40 +103,22 @@ public class FractalExplorer {
         frame.setVisible (true);
         frame.setResizable (false);
     }
+
+    private void enableUI(boolean val) {
+        resetButton.setEnabled(val);
+        comboBox.setEnabled(val);
+        saveButton.setEnabled(val);
+    }
     
     // метод для вывода на экран фрактала
     private void drawFractal(){
-        //Этот метод должен циклически проходить через каждый пиксель в отображении
-        for (int x=0; x<displaySize; x++){
-            for (int y=0; y<displaySize; y++){
-                
-                /**
-                 * получение координат x и у, соответствующие координатам пикселей X и У на экране
-                 */
-                double xCoord = fractals.getCoord(range.x, range.x + range.width, displaySize, x);
-                double yCoord = fractals.getCoord(range.y, range.y + range.height, displaySize, y);
-                /**Вычисление количества итераций для соответствующих координат в
-                области отображения фрактала. */
-                    int iteration = fractals.numIterations(xCoord, yCoord);
-                
-                /** Если количество итерация -1, то закрашиваем пиксель в черный. */
-                if (iteration == -1) {
-                    display.drawPixel(x, y, 0);
-                }
-                else {
-                    /**
-                     * иначе выбераем значение цвета, основанное на количестве итераций.  
-                     */
-                    float hue = 0.7f + (float) iteration / 200f;
-                    int rgbColor = Color.HSBtoRGB(hue, 1f, 1f);
-                
-                    /** Обновляем отображение в соответсвии с цветом для каждого пикселя.*/
-                    display.drawPixel(x, y, rgbColor);
-                }
-            }
-        }        
-        // обновляем JimageDisplay в соответствии с текущим изображением. 
-        display.repaint();
+        enableUI(false);
+        rowsRemaining = displaySize;
+        for (int x = 0; x < displaySize; x++) {
+            FractalWorker drawRow = new FractalWorker(x);
+            drawRow.execute();
+        }   
+        display.repaint();             
     }
 
     private class buttonClick implements ActionListener{
@@ -179,6 +167,7 @@ public class FractalExplorer {
     private class mouseClick extends MouseAdapter{
         @Override
         public void mouseClicked(MouseEvent e){
+            if (rowsRemaining == 0){
             /**
              * Получение координат пикселя от щелчка мыщью 
              * перевод координат пикселя x и у к соответствующим координатам xCoord и yCoord в области фрактала на экране*/
@@ -200,6 +189,56 @@ public class FractalExplorer {
              * перерисовка фрактал после изменения области фрактала.
              */
             drawFractal();
+            }
+        }
+    }
+    private class FractalWorker extends SwingWorker<Object, Object>{
+        int yCoordinate;
+
+        int[] RGBValues;
+
+        private FractalWorker(int row) {
+            yCoordinate = row;
+        }
+        @Override
+        public Object doInBackground(){
+            RGBValues = new int[displaySize];
+            for (int i = 0; i<RGBValues.length; i++){
+                double xCoord = fractals.getCoord(range.x, range.x + range.width, displaySize, i);
+                double yCoord = fractals.getCoord(range.y, range.y + range.height, displaySize, yCoordinate);
+                /**Вычисление количества итераций для соответствующих координат в
+                области отображения фрактала. */
+                    int iteration = fractals.numIterations(xCoord, yCoord);
+                
+                /** Если количество итерация -1, то закрашиваем пиксель в черный. */
+                if (iteration == -1) {
+                    RGBValues[i] = 0;
+                }
+                else {
+                    /**
+                     * иначе выбераем значение цвета, основанное на количестве итераций.  
+                     */
+                    float hue = 0.7f + (float) iteration / 200f;
+                    RGBValues[i] = Color.HSBtoRGB(hue, 1f, 1f);
+                
+                    /** Обновляем отображение в соответсвии с цветом для каждого пикселя.*/
+                    
+                }
+            }
+            return null;
+        }
+        public void done() {
+            for (int i = 0; i < RGBValues.length; i++) {
+                display.drawPixel(i, yCoordinate, RGBValues[i]);
+            }
+             /**
+              * После того, как строка будет вычислена, нужно перерисовать часть изображения, которая была изменена
+              */
+            display.repaint(0, 0, yCoordinate, displaySize, 1);
+            rowsRemaining--;
+            if (rowsRemaining == 0) {
+                enableUI(true);
+            }
         }
     }
     /**

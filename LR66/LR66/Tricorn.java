@@ -1,8 +1,8 @@
-package LR5;
+package LR66;
 
 import java.awt.geom.Rectangle2D;
 
-public class BurningShip extends FractalGenerator{
+public class Tricorn extends FractalGenerator{
     public static final int MAX_ITERATIONS = 2000;
 
     /**методу в качестве
@@ -12,7 +12,7 @@ public class BurningShip extends FractalGenerator{
     public void getInitialRange(Rectangle2D.Double range){
 
         range.x = -2;
-        range.y = -2.5;
+        range.y = -2;
         range.width = 4;
         range.height = 4;
 
@@ -25,7 +25,7 @@ public class BurningShip extends FractalGenerator{
     {
         
         int iterations = 0;
-        /** Initialize zreal and zimaginary. */
+        /** Инициализируем realNumber и imaginaryNumber */
         double realNumber = 0;
         double imaginaryNumber = 0;
         
@@ -38,7 +38,7 @@ public class BurningShip extends FractalGenerator{
                realNumber * realNumber + imaginaryNumber * imaginaryNumber < 4)
         {
             double newReal = realNumber * realNumber - imaginaryNumber * imaginaryNumber + x;
-            double newImaginary = Math.abs(2 * realNumber * imaginaryNumber) + y;
+            double newImaginary = -2 * realNumber * imaginaryNumber + y;
             realNumber = newReal;
             imaginaryNumber = newImaginary;
             iterations += 1;
@@ -56,8 +56,7 @@ public class BurningShip extends FractalGenerator{
         return iterations;
     }
     public String toString(){
-        return "BurningShip";
+        return "Tricorn";
     }
 }
-
 

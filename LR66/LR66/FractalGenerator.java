@@ -1,4 +1,4 @@
-package fractals;
+package LR66;
 
 import java.awt.geom.Rectangle2D;
 
